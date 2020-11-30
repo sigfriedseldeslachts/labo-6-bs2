@@ -73,3 +73,4 @@ jobs:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./target/*.war
         asset_name: ROOT.war
+        asset_content_type: application/java-archive
