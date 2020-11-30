@@ -1,8 +1,8 @@
-name: Development
+name: Release
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ master ]
 
 jobs:
   test_and_build:
@@ -46,6 +46,20 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: sigfriedseldeslachts/bs2-labo6:dev
-    
-    
+        tags: sigfriedseldeslachts/bs2-labo6:latest
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: release-${{ github.sha }}
+        path: target/*.war
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
