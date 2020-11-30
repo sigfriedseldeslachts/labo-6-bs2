@@ -9,8 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+  
     # Initialize
     - uses: actions/checkout@v2
+
     # Java setup
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -18,6 +20,12 @@ jobs:
         java-version: 1.8
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    # QEMU setup
+    - uses: docker/setup-qemu-action@v1
+
+    # BuildX setup
+    - uses: docker/setup-buildx-action@v1
 
     - name: Run tests
       run: mvn -B test --file pom.xml
@@ -36,6 +44,6 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: sigfriedseldeslachts/app:dev
+        tags: sigfriedseldeslachts/bs2-labo6:dev
     
     
