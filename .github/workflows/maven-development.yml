@@ -22,8 +22,8 @@ jobs:
     - name: Run tests
       run: mvn -B test --file pom.xml
     
-    - name: Run build
-      run: mvn -B build --file pom.xml
+    - name: Run package
+      run: mvn -B package --file pom.xml
   
     - name: Login to DockerHub
       uses: docker/login-action@v1 
