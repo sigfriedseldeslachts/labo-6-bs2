@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  test_and_build:
+    runs-on: ubuntu-latest
+
+    steps:
+  
+    # Initialize
+    - uses: actions/checkout@v2
+
+    # Java setup
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    # QEMU setup
+    - uses: docker/setup-qemu-action@v1
+
+    # BuildX setup
+    - uses: docker/setup-buildx-action@v1
+
+    - name: Run tests
+      run: mvn -B test --file pom.xml
+    
+    - name: Run package
+      run: mvn -B package --file pom.xml
+  
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push
+      id: docker_build
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: sigfriedseldeslachts/bs2-labo6:latest
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: release-${{ github.sha }}
+        path: target/*.war
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
